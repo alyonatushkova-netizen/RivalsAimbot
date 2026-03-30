@@ -1,10 +1,10 @@
 
--- Rivals Aimbot Pro + ESP + FPS Boost + Key System (Delta)
+-- Rivals Aimbot Mobile + ESP + FPS Boost + Key System (Delta Mobile)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
 local camera = workspace.CurrentCamera
 
 -- === СИСТЕМА КЛЮЧЕЙ ===
@@ -99,9 +99,67 @@ if settings.fpsBoost then
     end
 end
 
--- === МЕНЮ (появляется через 10 секунд) ===
-task.wait(10)
+-- === АНИМАЦИЯ ЗАГРУЗКИ 10 СЕКУНД ===
+local loadGui = Instance.new("ScreenGui")
+loadGui.Name = "LoadingScreen"
+loadGui.Parent = game:GetService("CoreGui")
 
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1,0,1,0)
+bg.BackgroundColor3 = Color3.fromRGB(0,0,0)
+bg.BackgroundTransparency = 0.5
+bg.Parent = loadGui
+
+local loadingFrame = Instance.new("Frame")
+loadingFrame.Size = UDim2.new(0, 250, 0, 80)
+loadingFrame.Position = UDim2.new(0.5, -125, 0.5, -40)
+loadingFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+loadingFrame.BorderSizePixel = 0
+loadingFrame.Parent = loadGui
+
+local titleLoad = Instance.new("TextLabel")
+titleLoad.Size = UDim2.new(1,0,0,30)
+titleLoad.Text = "Загрузка Rivals Aimbot"
+titleLoad.TextColor3 = Color3.fromRGB(255,255,255)
+titleLoad.BackgroundTransparency = 1
+titleLoad.Parent = loadingFrame
+
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 0, 0, 10)
+progressBar.Position = UDim2.new(0, 0, 0.5, 0)
+progressBar.BackgroundColor3 = Color3.fromRGB(0,200,0)
+progressBar.BorderSizePixel = 0
+progressBar.Parent = loadingFrame
+
+local progressBg = Instance.new("Frame")
+progressBg.Size = UDim2.new(0.9, 0, 0, 10)
+progressBg.Position = UDim2.new(0.05, 0, 0.7, 0)
+progressBg.BackgroundColor3 = Color3.fromRGB(80,80,80)
+progressBg.BorderSizePixel = 0
+progressBg.Parent = loadingFrame
+
+progressBar.Parent = progressBg
+
+local percentText = Instance.new("TextLabel")
+percentText.Size = UDim2.new(0.3,0,0,20)
+percentText.Position = UDim2.new(0.35,0,0.3,0)
+percentText.Text = "0%"
+percentText.TextColor3 = Color3.fromRGB(255,255,255)
+percentText.BackgroundTransparency = 1
+percentText.Parent = loadingFrame
+
+-- Анимация прогресса
+for i = 0, 10 do
+    local percent = i * 10
+    percentText.Text = percent .. "%"
+    local tween = TweenService:Create(progressBar, TweenInfo.new(1, Enum.EasingStyle.Linear), {Size = UDim2.new(percent/100, 0, 0, 10)})
+    tween:Play()
+    task.wait(1)
+end
+
+loadGui:Destroy()
+
+-- === МЕНЮ (появляется после загрузки) ===
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "RivalsMenu"
 screenGui.Parent = game:GetService("CoreGui")
@@ -116,15 +174,14 @@ mainFrame.Parent = screenGui
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0,30)
-title.Text = "Rivals Aimbot Pro"
+title.Text = "Rivals Aimbot Mobile"
 title.TextColor3 = Color3.fromRGB(255,255,255)
 title.BackgroundColor3 = Color3.fromRGB(20,20,20)
 title.Parent = mainFrame
 
 local function makeToggle(name, y, settingKey)
-
-local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9,0,0,30)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9,0,0,40)
     btn.Position = UDim2.new(0.05,0,0,y)
     btn.Text = name .. ": OFF"
     btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
@@ -137,24 +194,24 @@ local btn = Instance.new("TextButton")
     return btn
 end
 
-makeToggle("Aimbot", 40, "aimbot")
-makeToggle("ESP", 80, "esp")
-makeToggle("Team Check", 120, "teamCheck")
-makeToggle("Visible Check", 160, "visibleCheck")
-makeToggle("FPS Boost", 200, "fpsBoost")
+makeToggle("Aimbot", 50, "aimbot")
+makeToggle("ESP", 100, "esp")
+makeToggle("Team Check", 150, "teamCheck")
+makeToggle("Visible Check", 200, "visibleCheck")
+makeToggle("FPS Boost", 250, "fpsBoost")
 
 -- ESP Type
 local espTypeLabel = Instance.new("TextLabel")
-espTypeLabel.Size = UDim2.new(0.9,0,0,20)
-espTypeLabel.Position = UDim2.new(0.05,0,240)
+espTypeLabel.Size = UDim2.new(0.9,0,0,30)
+espTypeLabel.Position = UDim2.new(0.05,0,300)
 espTypeLabel.Text = "ESP Type: " .. settings.espType
 espTypeLabel.TextColor3 = Color3.fromRGB(255,255,255)
 espTypeLabel.BackgroundTransparency = 1
 espTypeLabel.Parent = mainFrame
 
 local espTypeBtn = Instance.new("TextButton")
-espTypeBtn.Size = UDim2.new(0.4,0,0,25)
-espTypeBtn.Position = UDim2.new(0.05,0,265)
+espTypeBtn.Size = UDim2.new(0.4,0,0,40)
+espTypeBtn.Position = UDim2.new(0.05,0,335)
 espTypeBtn.Text = settings.espType
 espTypeBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
 espTypeBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -171,16 +228,17 @@ end)
 -- Color (только админ)
 if userRole == "admin" then
     local colorLabel = Instance.new("TextLabel")
-    colorLabel.Size = UDim2.new(0.9,0,0,20)
-    colorLabel.Position = UDim2.new(0.05,0,300)
+    colorLabel.Size = UDim2.new(0.9,0,0,30)
+    colorLabel.Position = UDim2.new(0.05,0,385)
     colorLabel.Text = "ESP Color: Red"
     colorLabel.TextColor3 = Color3.fromRGB(255,255,255)
     colorLabel.BackgroundTransparency = 1
-    colorLabel.Parent = mainFrame
+
+colorLabel.Parent = mainFrame
     
     local redBtn = Instance.new("TextButton")
-    redBtn.Size = UDim2.new(0.2,0,0,25)
-    redBtn.Position = UDim2.new(0.05,0,325)
+    redBtn.Size = UDim2.new(0.2,0,0,40)
+    redBtn.Position = UDim2.new(0.05,0,420)
     redBtn.Text = "Red"
     redBtn.BackgroundColor3 = Color3.fromRGB(255,0,0)
     redBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -191,8 +249,8 @@ if userRole == "admin" then
     end)
     
     local greenBtn = Instance.new("TextButton")
-    greenBtn.Size = UDim2.new(0.2,0,0,25)
-    greenBtn.Position = UDim2.new(0.3,0,325)
+    greenBtn.Size = UDim2.new(0.2,0,0,40)
+    greenBtn.Position = UDim2.new(0.3,0,420)
     greenBtn.Text = "Green"
     greenBtn.BackgroundColor3 = Color3.fromRGB(0,255,0)
     greenBtn.TextColor3 = Color3.fromRGB(0,0,0)
@@ -203,8 +261,8 @@ if userRole == "admin" then
     end)
     
     local blueBtn = Instance.new("TextButton")
-    blueBtn.Size = UDim2.new(0.2,0,0,25)
-    blueBtn.Position = UDim2.new(0.55,0,325)
+    blueBtn.Size = UDim2.new(0.2,0,0,40)
+    blueBtn.Position = UDim2.new(0.55,0,420)
     blueBtn.Text = "Blue"
     blueBtn.BackgroundColor3 = Color3.fromRGB(0,0,255)
     blueBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -215,8 +273,8 @@ if userRole == "admin" then
     end)
     
     local yellowBtn = Instance.new("TextButton")
-    yellowBtn.Size = UDim2.new(0.2,0,0,25)
-    yellowBtn.Position = UDim2.new(0.8,0,325)
+    yellowBtn.Size = UDim2.new(0.2,0,0,40)
+    yellowBtn.Position = UDim2.new(0.8,0,420)
     yellowBtn.Text = "Yellow"
     yellowBtn.BackgroundColor3 = Color3.fromRGB(255,255,0)
     yellowBtn.TextColor3 = Color3.fromRGB(0,0,0)
@@ -227,68 +285,17 @@ if userRole == "admin" then
     end)
 end
 
--- FOV Slider
-local fovLabel = Instance.new("TextLabel")
-fovLabel.Size = UDim2.new(0.9,0,0,20)
-fovLabel.Position = UDim2.new(0.05,0,360)
-fovLabel.Text = "FOV: " .. settings.fov
-fovLabel.TextColor3 = Color3.fromRGB(255,255,255)
-fovLabel.BackgroundTransparency = 1
-fovLabel.Parent = mainFrame
-
-local fovSlider = Instance.new("TextBox")
-fovSlider.Size = UDim2.new(0.9,0,0,25)
-fovSlider.Position = UDim2.new(0.05,0,385)
-fovSlider.PlaceholderText = "50-500"
-fovSlider.Text = tostring(settings.fov)
-fovSlider.BackgroundColor3 = Color3.fromRGB(50,50,50)
-fovSlider.TextColor3 = Color3.fromRGB(255,255,255)
-fovSlider.Parent = mainFrame
-fovSlider.FocusLost:Connect(function()
-    local val = tonumber(fovSlider.Text)
-    if val then
-        settings.fov = math.clamp(val, 50, 500)
-        fovLabel.Text = "FOV: " .. settings.fov
-        fovSlider.Text = tostring(settings.fov)
-    else
-        fovSlider.Text = tostring(settings.fov)
-    end
-end)
-
--- Smoothness Slider
-local smoothLabel = Instance.new("TextLabel")
-smoothLabel.Size = UDim2.new(0.9,0,0,20)
-smoothLabel.Position = UDim2.new(0.05,0,420)
-smoothLabel.Text = "Smoothness: " .. settings.smoothness
-smoothLabel.TextColor3 = Color3.fromRGB(255,255,255)
-smoothLabel.BackgroundTransparency = 1
-smoothLabel.Parent = mainFrame
-
-local smoothSlider = Instance.new("TextBox")
-smoothSlider.Size = UDim2.new(0.9,0,0,25)
-smoothSlider.Position = UDim2.new(0.05,0,445)
-smoothSlider.PlaceholderText = "0.1-1.0"
-smoothSlider.Text = tostring(settings.smoothness)
-smoothSlider.BackgroundColor3 = Color3.fromRGB(50,50,50)
-smoothSlider.TextColor3 = Color3.fromRGB(255,255,255)
-smoothSlider.Parent = mainFrame
-smoothSlider.FocusLost:Connect(function()
-    local val = tonumber(smoothSlider.Text)
-    if val then
-        settings.smoothness = math.clamp(val, 0.05, 1)
-        smoothLabel.Text = "Smoothness: " .. settings.smoothness
-        smoothSlider.Text = tostring(settings.smoothness)
-    else
-        smoothSlider.Text = tostring(settings.smoothness)
-    end
-end)
-
--- Open/Close
-UserInputService.InputBegan:Connect(function(input, processed)
-    if processed then return end
-    if input.KeyCode == Enum.KeyCode.Insert then
-        mainFrame.Visible = not mainFrame.Visible
-    end
+-- Открытие/закрытие меню (кнопка на экране для мобилки)
+local menuButton = Instance.new("TextButton")
+menuButton.Size = UDim2.new(0, 60, 0, 60)
+menuButton.Position = UDim2.new(0.85, 0, 0.85, 0)
+menuButton.Text = "MENU"
+menuButton.TextColor3 = Color3.fromRGB(255,255,255)
+menuButton.BackgroundColor3 = Color3.fromRGB(0,150,0)
+menuButton.BorderSizePixel = 0
+menuButton.Parent = screenGui
+menuButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
 end)
 
 -- === ESP ===
@@ -312,7 +319,6 @@ local function updateESP()
                     box.Size = Vector3.new(3, 5, 1)
                     box.Color3 = settings.espColor
                     box.AlwaysOnTop = true
-                    box.ZIndex = 0
                     box.Adornee = char
                     box.Parent = char
                     table.insert(espObjects, box)
@@ -327,9 +333,9 @@ local function updateESP()
                     table.insert(espObjects, circle)
                 elseif settings.espType == "Skeleton" then
                     local parts = {"Head", "HumanoidRootPart", "LeftArm", "RightArm", "LeftLeg", "RightLeg"}
-                    for i=1,#parts do
 
-for j=i+1,#parts do
+for i=1,#parts do
+                        for j=i+1,#parts do
                             if char:FindFirstChild(parts[i]) and char:FindFirstChild(parts[j]) then
                                 local line = Instance.new("SelectionBox")
                                 line.Adornee = char
@@ -352,35 +358,33 @@ Players.PlayerAdded:Connect(updateESP)
 Players.PlayerRemoving:Connect(updateESP)
 RunService.RenderStepped:Connect(updateESP)
 
--- === AIMBOT (исправленный) ===
+-- === AIMBOT ДЛЯ ТЕЛЕФОНА (поворот камеры) ===
 local function getClosestPlayer()
     local closest = nil
     local shortest = settings.fov
-    local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+    local cameraCF = camera.CFrame
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and (not settings.teamCheck or plr.Team ~= LocalPlayer.Team) then
             local char = plr.Character
             if char then
-                local part = char:FindFirstChild(settings.aimPart)
-                if not part then part = char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart") end
-                if part and part.Position then
-                    local screenPos, onScreen = camera:WorldToScreenPoint(part.Position)
-                    if onScreen then
-                        local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
-                        if dist < shortest then
-                            if settings.visibleCheck then
-                                local raycastParams = RaycastParams.new()
-                                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-                                raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-                                local rayResult = workspace:Raycast(camera.CFrame.Position, (part.Position - camera.CFrame.Position).unit * 500, raycastParams)
-                                if rayResult and rayResult.Instance:IsDescendantOf(char) then
-                                    shortest = dist
-                                    closest = part
-                                end
-                            else
-                                shortest = dist
+                local part = char:FindFirstChild(settings.aimPart) or char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
+                if part then
+                    local vectorToTarget = (part.Position - cameraCF.Position).unit
+                    local angle = cameraCF.LookVector:Dot(vectorToTarget)
+                    local angleDeg = math.deg(math.acos(angle))
+                    if angleDeg < shortest then
+                        if settings.visibleCheck then
+                            local raycastParams = RaycastParams.new()
+                            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                            raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+                            local rayResult = workspace:Raycast(cameraCF.Position, (part.Position - cameraCF.Position).unit * 500, raycastParams)
+                            if rayResult and rayResult.Instance:IsDescendantOf(char) then
+                                shortest = angleDeg
                                 closest = part
                             end
+                        else
+                            shortest = angleDeg
+                            closest = part
                         end
                     end
                 end
@@ -394,12 +398,11 @@ RunService.RenderStepped:Connect(function()
     if not settings.enabled or not settings.aimbot then return end
     local target = getClosestPlayer()
     if target then
-        local targetPos = camera:WorldToScreenPoint(target.Position)
-        local deltaX = (targetPos.X - Mouse.X) * settings.smoothness
-        local deltaY = (targetPos.Y - Mouse.Y) * settings.smoothness
-        -- Для Delta используется mousemoverel (если не работает, замените на коробочную функцию)
-        pcall(function() mousemoverel(deltaX, deltaY) end)
+        local targetPos = target.Position
+        local currentCF = camera.CFrame
+        local newCF = CFrame.new(currentCF.Position, targetPos)
+        camera.CFrame = camera.CFrame:Lerp(newCF, settings.smoothness)
     end
 end)
 
-print("Rivals Aimbot Pro загружен. Нажмите Insert через 10 секунд после ввода ключа.")
+print("Rivals Aimbot Mobile загружен. Ключ принят. Нажмите MENU для настроек.")
