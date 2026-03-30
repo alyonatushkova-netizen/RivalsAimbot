@@ -1,4 +1,5 @@
--- Rivals Aimbot + ESP + FPS Boost + Key System (Delta)
+
+-- Rivals Aimbot Pro + ESP + FPS Boost + Key System (Delta)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -19,31 +20,23 @@ local validKeys = {
     ["USER-KEY-008"] = "user",
     ["USER-KEY-009"] = "user"
 }
-local enteredKey = nil
-local userRole = nil
 
--- Запрос ключа через inputbox (работает в Delta)
 local function askForKey()
-    local key = game:GetService("GuiService"):GetGuiButtonPressed() -- не подходит, используем простой диалог
-    -- Альтернатива: создаём окно ввода
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "KeyInput"
-    screenGui.Parent = game:GetService("CoreGui")
-    
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "KeyInputGUI"
+    gui.Parent = game:GetService("CoreGui")
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 300, 0, 150)
     frame.Position = UDim2.new(0.5, -150, 0.5, -75)
     frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
     frame.BorderSizePixel = 0
-    frame.Parent = screenGui
-    
+    frame.Parent = gui
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1,0,0,30)
     label.Text = "Введите ключ доступа"
     label.TextColor3 = Color3.fromRGB(255,255,255)
     label.BackgroundColor3 = Color3.fromRGB(20,20,20)
     label.Parent = frame
-    
     local textBox = Instance.new("TextBox")
     textBox.Size = UDim2.new(0.8,0,0,30)
     textBox.Position = UDim2.new(0.1,0,0.3,0)
@@ -52,7 +45,6 @@ local function askForKey()
     textBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
     textBox.TextColor3 = Color3.fromRGB(255,255,255)
     textBox.Parent = frame
-    
     local submit = Instance.new("TextButton")
     submit.Size = UDim2.new(0.4,0,0,30)
     submit.Position = UDim2.new(0.3,0,0.6,0)
@@ -60,33 +52,29 @@ local function askForKey()
     submit.BackgroundColor3 = Color3.fromRGB(0,120,0)
     submit.TextColor3 = Color3.fromRGB(255,255,255)
     submit.Parent = frame
-    
     local result = nil
     submit.MouseButton1Click:Connect(function()
         result = textBox.Text
-        screenGui:Destroy()
+        gui:Destroy()
     end)
     repeat task.wait() until result ~= nil
     return result
 end
 
+local userRole = nil
 repeat
-    enteredKey = askForKey()
-    if validKeys[enteredKey] then
-        userRole = validKeys[enteredKey]
+    local key = askForKey()
+    if validKeys[key] then
+        userRole = validKeys[key]
         break
     else
         game:GetService("StarterGui"):SetCore("SendNotification", {Title="Ошибка", Text="Неверный ключ", Duration=2})
     end
 until false
 
-if userRole == "admin" then
-    print("Добро пожаловать, администратор!")
-else
-    print("Добро пожаловать, пользователь!")
-end
+print(userRole == "admin" and "Администратор" or "Пользователь")
 
--- === НАСТРОЙКИ (для админа расширенные, для юзера базовые) ===
+-- === НАСТРОЙКИ ===
 local settings = {
     enabled = true,
     aimbot = true,
@@ -97,14 +85,12 @@ local settings = {
     visibleCheck = true,
     aimPart = "Head",
     espColor = Color3.fromRGB(255,0,0),
-    espType = "Box", -- Box, Circle, Skeleton
+    espType = "Box",
     fpsBoost = true
 }
 
 -- === FPS БУСТ ===
 if settings.fpsBoost then
-    -- Отключаем лишние эффекты
-    settings().QualityLevel = 1
     game:GetService("Lighting").GlobalShadows = false
     game:GetService("Lighting").FogEnd = 1000
     for _, v in pairs(workspace:GetDescendants()) do
@@ -113,7 +99,7 @@ if settings.fpsBoost then
     end
 end
 
--- === МЕНЮ С ЗАДЕРЖКОЙ 10 СЕКУНД ===
+-- === МЕНЮ (появляется через 10 секунд) ===
 task.wait(10)
 
 local screenGui = Instance.new("ScreenGui")
@@ -136,7 +122,8 @@ title.BackgroundColor3 = Color3.fromRGB(20,20,20)
 title.Parent = mainFrame
 
 local function makeToggle(name, y, settingKey)
-    local btn = Instance.new("TextButton")
+
+local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.9,0,0,30)
     btn.Position = UDim2.new(0.05,0,0,y)
     btn.Text = name .. ": OFF"
@@ -156,7 +143,7 @@ makeToggle("Team Check", 120, "teamCheck")
 makeToggle("Visible Check", 160, "visibleCheck")
 makeToggle("FPS Boost", 200, "fpsBoost")
 
--- Выбор типа ESP
+-- ESP Type
 local espTypeLabel = Instance.new("TextLabel")
 espTypeLabel.Size = UDim2.new(0.9,0,0,20)
 espTypeLabel.Position = UDim2.new(0.05,0,240)
@@ -168,7 +155,7 @@ espTypeLabel.Parent = mainFrame
 local espTypeBtn = Instance.new("TextButton")
 espTypeBtn.Size = UDim2.new(0.4,0,0,25)
 espTypeBtn.Position = UDim2.new(0.05,0,265)
-espTypeBtn.Text = "Box"
+espTypeBtn.Text = settings.espType
 espTypeBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
 espTypeBtn.TextColor3 = Color3.fromRGB(255,255,255)
 espTypeBtn.Parent = mainFrame
@@ -181,7 +168,7 @@ espTypeBtn.MouseButton1Click:Connect(function()
     espTypeBtn.Text = settings.espType
 end)
 
--- Выбор цвета ESP (только для админа)
+-- Color (только админ)
 if userRole == "admin" then
     local colorLabel = Instance.new("TextLabel")
     colorLabel.Size = UDim2.new(0.9,0,0,20)
@@ -231,8 +218,7 @@ if userRole == "admin" then
     yellowBtn.Size = UDim2.new(0.2,0,0,25)
     yellowBtn.Position = UDim2.new(0.8,0,325)
     yellowBtn.Text = "Yellow"
-
-yellowBtn.BackgroundColor3 = Color3.fromRGB(255,255,0)
+    yellowBtn.BackgroundColor3 = Color3.fromRGB(255,255,0)
     yellowBtn.TextColor3 = Color3.fromRGB(0,0,0)
     yellowBtn.Parent = mainFrame
     yellowBtn.MouseButton1Click:Connect(function()
@@ -241,7 +227,7 @@ yellowBtn.BackgroundColor3 = Color3.fromRGB(255,255,0)
     end)
 end
 
--- Слайдер FOV
+-- FOV Slider
 local fovLabel = Instance.new("TextLabel")
 fovLabel.Size = UDim2.new(0.9,0,0,20)
 fovLabel.Position = UDim2.new(0.05,0,360)
@@ -269,7 +255,7 @@ fovSlider.FocusLost:Connect(function()
     end
 end)
 
--- Слайдер Smoothness
+-- Smoothness Slider
 local smoothLabel = Instance.new("TextLabel")
 smoothLabel.Size = UDim2.new(0.9,0,0,20)
 smoothLabel.Position = UDim2.new(0.05,0,420)
@@ -297,7 +283,7 @@ smoothSlider.FocusLost:Connect(function()
     end
 end)
 
--- Открытие/закрытие меню по Insert
+-- Open/Close
 UserInputService.InputBegan:Connect(function(input, processed)
     if processed then return end
     if input.KeyCode == Enum.KeyCode.Insert then
@@ -305,17 +291,19 @@ UserInputService.InputBegan:Connect(function(input, processed)
     end
 end)
 
--- === ESP (с поддержкой типов) ===
+-- === ESP ===
 local espObjects = {}
 local function clearESP()
-    for _, v in pairs(espObjects) do v:Destroy() end
+    for _, obj in pairs(espObjects) do
+        pcall(function() obj:Destroy() end)
+    end
     espObjects = {}
 end
 
 local function updateESP()
     clearESP()
     if not settings.esp then return end
-    for _, plr in ipairs(Players:GetPlayers()) do
+    for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and (not settings.teamCheck or plr.Team ~= LocalPlayer.Team) then
             local char = plr.Character
             if char and char:FindFirstChild("HumanoidRootPart") then
@@ -335,14 +323,13 @@ local function updateESP()
                     circle.Color3 = settings.espColor
                     circle.AlwaysOnTop = true
                     circle.Adornee = char
-
-circle.Parent = char
+                    circle.Parent = char
                     table.insert(espObjects, circle)
                 elseif settings.espType == "Skeleton" then
-                    -- Простой скелет: линии между частями тела
                     local parts = {"Head", "HumanoidRootPart", "LeftArm", "RightArm", "LeftLeg", "RightLeg"}
                     for i=1,#parts do
-                        for j=i+1,#parts do
+
+for j=i+1,#parts do
                             if char:FindFirstChild(parts[i]) and char:FindFirstChild(parts[j]) then
                                 local line = Instance.new("SelectionBox")
                                 line.Adornee = char
@@ -351,6 +338,7 @@ circle.Parent = char
                                 line.Transparency = 0.3
                                 line.Parent = char
                                 table.insert(espObjects, line)
+                                break
                             end
                         end
                     end
@@ -375,15 +363,17 @@ local function getClosestPlayer()
             if char then
                 local part = char:FindFirstChild(settings.aimPart)
                 if not part then part = char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart") end
-                if part then
+                if part and part.Position then
                     local screenPos, onScreen = camera:WorldToScreenPoint(part.Position)
                     if onScreen then
                         local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
                         if dist < shortest then
                             if settings.visibleCheck then
-                                local ray = Ray.new(camera.CFrame.Position, (part.Position - camera.CFrame.Position).unit * 500)
-                                local hit, pos = workspace:FindPartOnRay(ray, LocalPlayer.Character)
-                                if hit and hit:IsDescendantOf(char) then
+                                local raycastParams = RaycastParams.new()
+                                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                                raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+                                local rayResult = workspace:Raycast(camera.CFrame.Position, (part.Position - camera.CFrame.Position).unit * 500, raycastParams)
+                                if rayResult and rayResult.Instance:IsDescendantOf(char) then
                                     shortest = dist
                                     closest = part
                                 end
@@ -407,8 +397,9 @@ RunService.RenderStepped:Connect(function()
         local targetPos = camera:WorldToScreenPoint(target.Position)
         local deltaX = (targetPos.X - Mouse.X) * settings.smoothness
         local deltaY = (targetPos.Y - Mouse.Y) * settings.smoothness
-        mousemoverel(deltaX, deltaY)
+        -- Для Delta используется mousemoverel (если не работает, замените на коробочную функцию)
+        pcall(function() mousemoverel(deltaX, deltaY) end)
     end
 end)
 
-print("Rivals Aimbot Pro загружен. Ключ принят. Меню через Insert.")
+print("Rivals Aimbot Pro загружен. Нажмите Insert через 10 секунд после ввода ключа.")
